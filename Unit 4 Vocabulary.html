@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>6A Unit 4 Vocabulary 單字練習</title>
+<style>
+  :root {
+    --bg-color: #fef9e7;
+    --card-bg: #fdebd0;
+    --main-color: #f39c12;
+    --text-dark: #d35400;
+    --correct-color: #27ae60;
+    --wrong-color: #c0392b;
+  }
+  
+  body {
+    font-family: "Microsoft JhengHei", "PingFang TC", sans-serif;
+    background: var(--bg-color);
+    color: #333;
+    margin: 0;
+    padding: 0;
+    font-size: 18px; /* 基礎字體加大 */
+  }
+  
+  header {
+    background: var(--main-color);
+    color: white;
+    text-align: center;
+    padding: 25px 15px;
+    font-size: 32px;
+    font-weight: bold;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  }
+  
+  nav {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    padding: 20px;
+    background: #fff;
+    border-bottom: 2px solid var(--card-bg);
+  }
+  
+  nav button {
+    background: var(--main-color);
+    color: white;
+    border: none;
+    padding: 12px 22px;
+    font-size: 19px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.2s;
+    font-weight: bold;
+  }
+  
+  nav button:hover { opacity: 0.9; transform: translateY(-2px); }
+  
+  .section { display: none; padding: 25px; max-width: 900px; margin: auto; }
+  .section.active { display: block; }
+  
+  .controls { text-align: center; margin-bottom: 20px; }
+  .controls button {
+    background: var(--text-dark);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 17px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin: 5px;
+  }
+  
+  #cardGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 18px;
+  }
+  
+  .card {
+    background: var(--card-bg);
+    padding: 20px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: 0.2s;
+    border: 1px solid #f5cba7;
+    text-align: left;
+  }
+  
+  .card:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+  .card .en { font-size: 26px; font-weight: bold; color: var(--text-dark); margin-bottom: 8px; }
+  .card .cn { font-size: 20px; color: #555; margin-top: 5px; }
+  .card .cn.hidden { display: none; }
+  
+  .quiz-box {
+    background: white;
+    padding: 35px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    border: 2px solid var(--card-bg);
+  }
+  
+  .question { font-size: 30px; margin: 25px 0; color: var(--text-dark); font-weight: bold; }
+  
+  .options { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 25px 0; }
+  .opt-btn {
+    padding: 18px;
+    font-size: 21px;
+    border: 2px solid var(--main-color);
+    background: white;
+    color: var(--text-dark);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.2s;
+    font-family: inherit;
+  }
+  
+  .opt-btn:hover { background: var(--card-bg); }
+  .opt-btn.correct { background: var(--correct-color); color: white; border-color: var(--correct-color); }
+  .opt-btn.wrong { background: var(--wrong-color); color: white; border-color: var(--wrong-color); }
+  
+  .feedback { font-size: 24px; margin: 20px 0; font-weight: bold; }
+  .next-btn {
+    background: var(--main-color);
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    font-size: 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 15px;
+    display: none;
+  }
+</style>
+</head>
+<body>
+
+<header>6A Unit 4 Vocabulary 單字練習</header>
+
+<nav>
+  <button onclick="showSec('cards')">📖 單字卡</button>
+  <button onclick="showSec('zh-en')">中譯英</button>
+  <button onclick="showSec('en-zh')">🇬🇧 英譯中</button>
+</nav>
+
+<div id="cards" class="section active">
+  <div class="controls">
+    <button onclick="toggleCn(false)">顯示中文</button>
+    <button onclick="toggleCn(true)">遮中文</button>
+  </div>
+  <div id="cardGrid"></div>
+</div>
+
+<div id="zh-en" class="section">
+  <div class="quiz-box">
+    <div class="question" id="q-zh"></div>
+    <div class="options" id="opt-zh"></div>
+    <div class="feedback" id="fb-zh"></div>
+    <button class="next-btn" id="next-zh" onclick="nextQ('zh')">下一題 ➔</button>
+  </div>
+</div>
+
+<div id="en-zh" class="section">
+  <div class="quiz-box">
+    <div class="question" id="q-en"></div>
+    <div class="options" id="opt-en"></div>
+    <div class="feedback" id="fb-en"></div>
+    <button class="next-btn" id="next-en" onclick="nextQ('en')">下一題 ➔</button>
+  </div>
+</div>
+
+<script>
+const vocab = [
+  {en:"cruel", cn:"殘酷的"}, {en:"curious", cn:"好奇的"},
+  {en:"fierce", cn:"兇狠的"}, {en:"greedy", cn:"貪心的"},
+  {en:"lonely", cn:"寂寞的"}, {en:"obedient", cn:"聽話的"},
+  {en:"proud", cn:"驕傲的/自豪的"}, {en:"selfish", cn:"自私的"},
+  {en:"wicked", cn:"邪惡的"}, {en:"wise", cn:"聰明的"},
+  {en:"play script", cn:"話劇劇本"}, {en:"scene", cn:"場景"},
+  {en:"character", cn:"角色"}, {en:"basket", cn:"籃子"},
+  {en:"be able to", cn:"能夠"}, {en:"safe path", cn:"安全路徑"},
+  {en:"cheer up", cn:"振作起來"}, {en:"colourful", cn:"五彩繽紛的"},
+  {en:"nervously", cn:"焦急地"}, {en:"cottage", cn:"村舍"},
+  {en:"wardrobe", cn:"衣櫃"}, {en:"pretend", cn:"偽裝"},
+  {en:"teach a lesson", cn:"給以教訓"}, {en:"advice", cn:"忠告/建議"},
+  {en:"favourite", cn:"最喜愛的"}
+];
+
+let hideCn = false;
+
+function renderCards() {
+  const g = document.getElementById('cardGrid');
+  g.innerHTML = '';
+  vocab.forEach(v => {
+    const c = document.createElement('div');
+    c.className = 'card';
+    c.innerHTML = `<div class="en">${v.en}</div>
+      <div class="cn ${hideCn?'hidden':''}">${v.cn}</div>`;
+    c.onclick = () => {
+      if(window.speechSynthesis) {
+        const utter = new SpeechSynthesisUtterance(v.en);
+        utter.lang = 'en-US';
+        speechSynthesis.speak(utter);
+      }
+    };
+    g.appendChild(c);
+  });
+}
+
+function toggleCn(h) { hideCn = h; renderCards(); }
+
+function showSec(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if(id==='cards') renderCards();
+  if(id==='zh-en') startQ('zh');
+  if(id==='en-zh') startQ('en');
+}
+
+function shuffle(a){for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+function startQ(type) {
+  const pool = [...vocab];
+  const ans = pool[Math.floor(Math.random()*pool.length)];
+  if(type==='zh') { document.getElementById('q-zh').innerText = ans.cn; buildOpts(ans, pool, 'zh'); }
+  else { document.getElementById('q-en').innerText = ans.en; buildOpts(ans, pool, 'en'); }
+  document.getElementById('fb-'+(type==='zh'?'zh':'en')).innerText='';
+  document.getElementById('next-'+(type==='zh'?'zh':'en')).style.display='none';
+}
+
+function buildOpts(ans, pool, type) {
+  let opts = [ans];
+  while(opts.length<4) {
+    let r = pool[Math.floor(Math.random()*pool.length)];
+    if(!opts.includes(r)) opts.push(r);
+  }
+  shuffle(opts);
+  const box = document.getElementById(type==='zh'?'opt-zh':'opt-en');
+  box.innerHTML='';
+  opts.forEach(o => {
+    const b = document.createElement('button');
+    b.className='opt-btn';
+    b.innerText = type==='zh' ? o.en : o.cn;
+    b.onclick = () => check(b, o, ans, type);
+    box.appendChild(b);
+  });
+}
+
+function check(btn, sel, ans, type) {
+  const fb = document.getElementById('fb-'+(type==='zh'?'zh':'en'));
+  if(sel===ans) { btn.classList.add('correct'); fb.innerText='✅ 正確！'; fb.style.color='var(--correct-color)'; }
+  else { btn.classList.add('wrong'); fb.innerText='❌ 正解是：'+ (type==='zh'?ans.en:ans.cn); fb.style.color='var(--wrong-color)'; }
+  document.querySelectorAll('#'+(type==='zh'?'opt-zh':'opt-en')+' .opt-btn').forEach(b=>b.onclick=null);
+  document.getElementById('next-'+(type==='zh'?'zh':'en')).style.display='inline-block';
+}
+
+function nextQ(type) { startQ(type); }
+
+renderCards();
+</script>
+</body>
+</html>
